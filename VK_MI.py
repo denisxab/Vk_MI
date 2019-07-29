@@ -2,9 +2,8 @@
 """
 Скачивание музыки из ВК
 """
-# pylint!: disable=C0103
-# pylint!: disable=R1702
-# pylint!: disable=R0911
+# pylint: disable=C0103
+
 
 def save_audio_os(name: str, url: str):
     """
@@ -74,7 +73,6 @@ def search_aidio(Choice_fanc, vk_sessions, name: str, count: int):
     return False
 
 
-
 def Entrance_VK(logins, passwords):
     """
     Вход в ВК
@@ -119,7 +117,6 @@ def clear_id(name: str):
     return name
 
 
-
 def Search(vk_sessions, REG: str):
     """
     Цикл поиск Вк
@@ -132,7 +129,6 @@ def Search(vk_sessions, REG: str):
     os.system('cls')
 
     while True:
-
         if REG == 'all':
             print('-------- All Search --------')
             Name = str(input('Name Audio : '))
@@ -245,6 +241,7 @@ def Search(vk_sessions, REG: str):
 
     return False
 
+
 def Audio_VK(vk_sessions):
     """
     Проводник к Search
@@ -274,6 +271,7 @@ def Audio_VK(vk_sessions):
             print('False - No command')
     return False
 
+
 def Test_install_libs():
     """
     Проверка устоновелнных библиотек
@@ -291,6 +289,7 @@ def Test_install_libs():
 
     #__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#
 
+
 if __name__ == '__main__':
     Test_install_libs()
     import os
@@ -300,8 +299,8 @@ if __name__ == '__main__':
     from vk_api.audio import VkAudio
 
     with open('PAW.txt', 'r') as FIL:
-        login, password = FIL.read().split(' ')
-        vk_session = Entrance_VK(login, password)
+        login_VK, password_VK = FIL.read().split(' ')
+        vk_session = Entrance_VK(login_VK, password_VK)
 
     if vk_session:
         Audio_VK(vk_session)
