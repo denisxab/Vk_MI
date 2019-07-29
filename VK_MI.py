@@ -16,9 +16,9 @@ from vk_api.audio import VkAudio
 
 
 def save_Audio(name: str, url: str):
-	"""
-	Скачивание муызки по прямой ссылки
-	"""
+    """
+    Скачивание муызки по прямой ссылки
+    """
     if not isinstance(name, str) or not isinstance(url, str):
         return False
     #_________________________________________________#
@@ -74,9 +74,9 @@ def search_aidio(REG, vk_session, name: str, count: int):
 
 
 def VK_G0(login, password):
-	"""
-	Вход в ВК
-	"""
+    """
+    Вход в ВК
+    """
 
     vk_session = vk_api.VkApi(login, password)
     try:
@@ -125,7 +125,7 @@ def Search(vk_session, REG: str):
         return False
     #______________________________________________________#
     os.system('cls')
-    
+
     i = True
     while i == True:
 
@@ -175,6 +175,7 @@ def Search(vk_session, REG: str):
             Nomer = input('Nomer : ').split('-')
             print(Nomer)
 
+
             if len(Nomer) == 2:
 
                 try:
@@ -185,23 +186,25 @@ def Search(vk_session, REG: str):
                     print('False - Nomer is int')
                     continue
 
+               
                 if Nomer0 < Nomer1:
 
-                    if Nomer1 <= Max:
+                    if Nomer1 < Max:
 
                         for x in range(Nomer0, Nomer1+1):
+                            
                             RES1 = save_Audio(f'{RES[x][0]} {RES[x][1]}', RES[x][2])
+                            if RES1:
+                            	print(f'{x} - True')
+                            elif not RES1:
+                            	print(f'{x} - False - Install Before')
 
-                        if RES1:
-                            input(f'- {RES1}\n')
-                            os.system('cls')
+                        input(f'- {RES1}\n')
+                        os.system('cls')
 
-                        elif not RES1:
-                            os.system('cls')
-                            print('False - Install Before')
-                            continue
 
-                    elif Nomer0 > Max:
+
+                    elif Nomer1 >= Max:
                         os.system('cls')
                         print('False - Nomer > Max')
                         continue
@@ -214,7 +217,8 @@ def Search(vk_session, REG: str):
             elif len(Nomer) == 1:
                 try:
                     Nomer0 = int(Nomer[0])
-                    if Nomer0 <= Max:
+
+                    if Nomer0 < Max:
                         RES1 = save_Audio(f'{RES[Nomer0][0]} {RES[Nomer0][1]}', RES[Nomer0][2])
 
                         if RES1:
@@ -226,7 +230,7 @@ def Search(vk_session, REG: str):
                             print('False - Install Before')
                             continue
 
-                    elif Nomer0 > Max:
+                    elif Nomer0 >= Max:
                         os.system('cls')
                         print('False - Nomer0 > Max')
                         continue
