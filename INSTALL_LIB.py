@@ -5,11 +5,10 @@ import pip._internal.utils.misc as pip
 import sys
 
 
-#########################################
-
 
 def insatll_lib(name: str):
-    if not isinstance(name, str):return False
+    if not isinstance(name, str):
+        return False
     #____________________________________________#
     command = f'pip install {name}'
     cash_text = re.findall(re.compile('[^\n-- ]+'), os.popen(command).read())
@@ -22,7 +21,8 @@ def insatll_lib(name: str):
 
 
 def chek_libs(list_libr: dict):
-    if not isinstance(list_libr, dict):return False
+    if not isinstance(list_libr, dict):
+        return False
     #____________________________________________#
     installed_packages_list = sorted(
         ["%s" % i.key for i in pip.get_installed_distributions()])
@@ -62,7 +62,8 @@ def INSTALL_LIB(list_libr: dict):
     }
     """
 
-    if not isinstance(list_libr, dict):return False
+    if not isinstance(list_libr, dict):
+        return False
 
     #____________________________________________#
     try:
@@ -107,7 +108,6 @@ def INSTALL_LIB(list_libr: dict):
 
     return res
 
-#########################################
 
 if __name__ == '__main__':
     print(INSTALL_LIB({
@@ -117,4 +117,3 @@ if __name__ == '__main__':
         'linux': {'requests': 'requests'},
         'darwin': {'requests': 'requests'},
     }))
-
