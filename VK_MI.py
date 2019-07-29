@@ -1,25 +1,18 @@
-#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#
-import INSTALL_LIB
-z = INSTALL_LIB.INSTALL_LIB(
-    {'all': {'requests': 'requests',
-             'vk-api': 'vk-api',
-             },
-     })
-if not z or isinstance(z, dict):print(z);quit()
-#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#
+# -*- coding: utf-8 -*-
+"""
+Скачивание музыки из ВК
+"""
+# pylint!: disable=C0103
+# pylint!: disable=R1702
+# pylint!: disable=R0911
 
-import os
-import re
-import requests
-import vk_api
-from vk_api.audio import VkAudio
-
-
-def save_Audio(name: str, url: str):
+def save_audio_os(name: str, url: str):
     """
     Скачивание муызки по прямой ссылки
     """
-    if not isinstance(name, str) or not isinstance(url, str):
+    if not isinstance(url, str):
+        return False
+    if not isinstance(name, str):
         return False
     #_________________________________________________#
     name = '_'.join(re.findall(re.compile('[а-яА-Яa-zA-Z0-9]+'), name))
@@ -31,14 +24,18 @@ def save_Audio(name: str, url: str):
             file.write(requests.get(url).content)
         return True
 
-    else:
-        return False
+    return False
 
 
-def search_aidio(REG, vk_session, name: str, count: int):
-    if not isinstance(REG, str):
+def search_aidio(Choice_fanc, vk_sessions, name: str, count: int):
+    """
+    Поиск аудио записей из общего поиска вк
+    или из плей листа пользователя
+    """
+    #_________________________________________________#
+    if not isinstance(Choice_fanc, str):
         return False
-    if not isinstance(vk_session, vk_api.vk_api.VkApi):
+    if not isinstance(vk_sessions, vk_api.vk_api.VkApi):
         return False
     if not isinstance(name, str):
         return False
@@ -46,18 +43,17 @@ def search_aidio(REG, vk_session, name: str, count: int):
         return False
     #_________________________________________________#
 
-    """
-	Поиск аудио записей из общего поиска вк
-	или из плей листа пользователя 
-	"""
-    vkaudio = VkAudio(vk_session)
-    if REG == 'all':
+    vkaudio = VkAudio(vk_sessions)
+    if Choice_fanc == 'all':
         search_111 = []
-        for x in vkaudio.search(name, count):
-            search_111.append((x['artist'], x['title'], x['url']))
+        for lists_music in vkaudio.search(name, count):
+            search_111.append(
+                (lists_music['artist'],
+                 lists_music['title'],
+                 lists_music['url']))
         return search_111
 
-    elif REG == 'id':
+    if Choice_fanc == 'id':
         search_111 = []
         if not isinstance(name, int):
             try:
@@ -65,38 +61,44 @@ def search_aidio(REG, vk_session, name: str, count: int):
             except ValueError:
                 return False
 
-        for x in enumerate(vkaudio.get_iter(owner_id=name)):
-            if x[0] <= count:
-                search_111.append((x[1]['artist'], x[1]['title'], x[1]['url']))
+        for lists_music in enumerate(vkaudio.get_iter(owner_id=name)):
+            if lists_music[0] <= count:
+                search_111.append(
+                    (lists_music[1]['artist'],
+                     lists_music[1]['title'],
+                     lists_music[1]['url']))
             else:
                 break
         return search_111
 
+    return False
 
-def VK_G0(login, password):
+
+
+def Entrance_VK(logins, passwords):
     """
     Вход в ВК
     """
 
-    vk_session = vk_api.VkApi(login, password)
+    vk_sessions = vk_api.VkApi(logins, passwords)
     try:
-        vk_session.auth()
+        vk_sessions.auth()
     except vk_api.AuthError as error_msg:
         print(error_msg)
 
     except requests.exceptions.ConnectionError:
         return False
 
-    return vk_session
+    return vk_sessions
 
 
 def clear_id(name: str):
-    if not isinstance(name, str):
-        return False
-    #_______________________________#
     """
     Отчитска ID вк
     """
+    if not isinstance(name, str):
+        return False
+    #_______________________________#
 
     name = name.split('/')
 
@@ -114,34 +116,36 @@ def clear_id(name: str):
     if re.findall(re.compile('[a-z]'), name):
         return False
 
-    else:
-        return name
+    return name
 
 
-def Search(vk_session, REG: str):
+
+def Search(vk_sessions, REG: str):
+    """
+    Цикл поиск Вк
+    """
     if not isinstance(REG, str):
         return False
-    if not isinstance(vk_session, vk_api.vk_api.VkApi):
+    if not isinstance(vk_sessions, vk_api.vk_api.VkApi):
         return False
     #______________________________________________________#
     os.system('cls')
 
-    i = True
-    while i == True:
+    while True:
 
         if REG == 'all':
             print('-------- All Search --------')
             Name = str(input('Name Audio : '))
             if Name == '<<<':
                 os.system('cls')
-                return
+                return False
 
         elif REG == 'id':
             print('-------- ID Search List --------')
             Name = str(input('ID Audio : '))
             if Name == '<<<':
                 os.system('cls')
-                return
+                return False
             Name = clear_id(Name)
 
             if Name:
@@ -161,10 +165,10 @@ def Search(vk_session, REG: str):
             continue
 
         if REG == 'all':
-            RES = search_aidio('all', vk_session, Name, Max)
+            RES = search_aidio('all', vk_sessions, Name, Max)
 
         elif REG == 'id':
-            RES = search_aidio('id', vk_session, Name, Max)
+            RES = search_aidio('id', vk_sessions, Name, Max)
 
         print('--------------------')
         if RES:
@@ -174,7 +178,6 @@ def Search(vk_session, REG: str):
 
             Nomer = input('Nomer : ').split('-')
             print(Nomer)
-
 
             if len(Nomer) == 2:
 
@@ -186,23 +189,19 @@ def Search(vk_session, REG: str):
                     print('False - Nomer is int')
                     continue
 
-               
                 if Nomer0 < Nomer1:
 
                     if Nomer1 < Max:
 
                         for x in range(Nomer0, Nomer1+1):
-                            
-                            RES1 = save_Audio(f'{RES[x][0]} {RES[x][1]}', RES[x][2])
-                            if RES1:
-                            	print(f'{x} - True')
-                            elif not RES1:
-                            	print(f'{x} - False - Install Before')
 
+                            RES1 = save_audio_os(f'{RES[x][0]} {RES[x][1]}', RES[x][2])
+                            if RES1:
+                                print(f'{x} - True')
+                            elif not RES1:
+                                print(f'{x} - False - Install Before')
                         input(f'- {RES1}\n')
                         os.system('cls')
-
-
 
                     elif Nomer1 >= Max:
                         os.system('cls')
@@ -219,7 +218,7 @@ def Search(vk_session, REG: str):
                     Nomer0 = int(Nomer[0])
 
                     if Nomer0 < Max:
-                        RES1 = save_Audio(f'{RES[Nomer0][0]} {RES[Nomer0][1]}', RES[Nomer0][2])
+                        RES1 = save_audio_os(f'{RES[Nomer0][0]} {RES[Nomer0][1]}', RES[Nomer0][2])
 
                         if RES1:
                             input(f'- {RES1}\n')
@@ -244,44 +243,69 @@ def Search(vk_session, REG: str):
             os.system('cls')
             print('False - No Audio')
 
+    return False
 
-def Audio_VK(vk_session):
-    if not isinstance(vk_session, vk_api.vk_api.VkApi):
+def Audio_VK(vk_sessions):
+    """
+    Проводник к Search
+    """
+    if not isinstance(vk_sessions, vk_api.vk_api.VkApi):
         return False
     #______________________________________________________#
 
-    i = True
-    while i == True:
+    while True:
         print('-------- Audio VK ----------')
         types = input('Type Search - (help) : ')
         if types == 'help':
             print(
-                "\nall - Глабальынй поиск\nid - Поиск по плейлисту пользователя Указать (ID)")
+                "\nall - Глабальынй поиск\nid - Поиск по плейлисту пользователя Указать (ID)\
+                \nВернуться обрато - '<<<' ")
             input()
             os.system('cls')
 
         elif types == 'all':
-            Search(vk_session, 'all')
+            Search(vk_sessions, 'all')
 
         elif types == 'id':
-            Search(vk_session, 'id')
+            Search(vk_sessions, 'id')
 
         else:
             os.system('cls')
             print('False - No command')
+    return False
 
+def Test_install_libs():
+    """
+    Проверка устоновелнных библиотек
+    """
+    #__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#
+    import INSTALL_LIB
+    Modules = INSTALL_LIB.INSTALL_LIB({
+        'all': {'requests': 'requests',
+                'vk-api': 'vk-api',
+                },
+    })
+    if not Modules or isinstance(Modules, dict):
+        print(Modules)
+        quit()
+
+    #__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#
 
 if __name__ == '__main__':
+    Test_install_libs()
+    import os
+    import re
+    import requests
+    import vk_api
+    from vk_api.audio import VkAudio
+
     with open('PAW.txt', 'r') as FIL:
         login, password = FIL.read().split(' ')
+        vk_session = Entrance_VK(login, password)
 
-    vk_session = VK_G0(login, password)
     if vk_session:
         Audio_VK(vk_session)
 
     if not vk_session:
         print('False - No Internet')
         input()
-
-
-
