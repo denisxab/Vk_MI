@@ -4,6 +4,18 @@
 """
 # pylint: disable=C0103
 
+try:
+    import os
+    import re
+    import requests
+    import vk_api
+    from vk_api.audio import VkAudio
+
+except ModuleNotFoundError:
+    import INSTALL_LIB
+    INSTALL_LIB.INSTALL_LIB(
+        {'all': {'requests': 'requests', 'vk-api': 'vk-api', }, }, 1)
+
 
 def save_audio_os(name: str, url: str):
     """
@@ -98,23 +110,21 @@ def clear_id(name: str):
         return False
     #_______________________________#
 
-    name = name.split('/')
-
-    if len(name) != 1:
-        name = name[3].split('id')
-
-        if len(name) == 2:
-            name = name[1]
-        else:
-            name = name[0]
+    name = re.findall(re.compile("\\w+(?![https://vk.com/])"), name)[0]
+    list_name = list(name)
+    if list_name[0] == 'i' and list_name[1] == 'd':  # pylint: disable=R1705
+        list_name.pop(0)
+        list_name.pop(0)
+        return ''.join(list_name)
 
     else:
-        name = name[0]
+        iad = re.findall(re.compile('[a-z]'), name)
+        if iad:
+            return False
+        if not iad:
+            return ''.join(name)
 
-    if re.findall(re.compile('[a-z]'), name):
-        return False
-
-    return name
+    return False
 
 
 def Search(vk_sessions, REG: str):
@@ -272,32 +282,7 @@ def Audio_VK(vk_sessions):
     return False
 
 
-def Test_install_libs():
-    """
-    Проверка устоновелнных библиотек
-    """
-    #__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#
-    import INSTALL_LIB
-    Modules = INSTALL_LIB.INSTALL_LIB({
-        'all': {'requests': 'requests',
-                'vk-api': 'vk-api',
-                },
-    })
-    if not Modules or isinstance(Modules, dict):
-        print(Modules)
-        quit()
-
-    #__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#__#
-
-
 if __name__ == '__main__':
-    Test_install_libs()
-    import os
-    import re
-    import requests
-    import vk_api
-    from vk_api.audio import VkAudio
-
     with open('PAW.txt', 'r') as FIL:
         login_VK, password_VK = FIL.read().split(' ')
         vk_session = Entrance_VK(login_VK, password_VK)
