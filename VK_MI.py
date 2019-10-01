@@ -3,7 +3,6 @@
 Скачивание музыки из ВК
 """
 # pylint: disable=C0103
-#167802516
 
 import os
 import re
@@ -11,9 +10,8 @@ import requests
 import vk_api
 from vk_api.audio import VkAudio
 from Check_class.Check_class import Check_class
-import Search_vk
 import concurrent.futures
-
+import Search_vk
 
 
 def save_audio_os(name: str, url: str):
@@ -52,9 +50,9 @@ def Entrance_VK(logins: str, passwords: str)-> True:
     return vk_sessions
 
 
-def Pred_dowload(item_dowload:tuple):
+def Pred_dowload(item_dowload: tuple):
 
-    RES1 = save_audio_os(item_dowload[0],item_dowload[1])
+    RES1 = save_audio_os(item_dowload[0], item_dowload[1])
 
     if RES1:
         return f'{item_dowload[0]} - True'
@@ -84,18 +82,17 @@ def Search(vk_sessions: vk_api.vk_api.VkApi, REG: str):
             print('-------- ID Search List --------')
             Name = str(input('ID Audio : '))
 
-
             if Name == '<<<':
                 os.system('cls')
                 return False
 
-            elif Name == 'my':
-                Name = Search_vk.save_id(0,False)
+            if Name == 'my':
+                Name = vk_session.token['user_id']
 
             else:
                 Name = Search_vk.clear_id(Name)
 
-            if Name == True:
+            if Name:
                 print(f'ID = {Name}')
                 Name = str(Name)
 
@@ -135,32 +132,30 @@ def Search(vk_sessions: vk_api.vk_api.VkApi, REG: str):
                     print('False - Nomer is int')
                     continue
 
-                if Nomer0 < Nomer1:
+                if Nomer0 <= Nomer1:
 
-                    if Nomer1 < Max:
+                    if Nomer1 <= Max:
 
                         List_dowload = []
-                        for x in range(Nomer0, Nomer1):
+                        for x in range(Nomer0, Nomer1+1):
                             List_dowload.append((f'{RES[x][0]} {RES[x][1]}', RES[x][2]))
 
                         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-                            for x in executor.map(Pred_dowload,List_dowload):
+                            for x in executor.map(Pred_dowload, List_dowload):
                                 print(x)
 
+                        # for x in map(Pred_dowload,List_dowload):
+                        #     print(x)
 
-                        #list(map(Pred_dowload,List_dowload))
-                        
                         input('-End\n')
                         os.system('cls')
-
-     
 
                     elif Nomer1 >= Max:
                         os.system('cls')
                         print('False - Nomer > Max')
                         continue
 
-                elif Nomer0 < Nomer1:
+                elif Nomer0 > Nomer1:
                     os.system('cls')
                     print('False - Nomer[0] > Nomer[1]')
                     continue
@@ -224,12 +219,12 @@ def Audio_VK(vk_sessions: vk_api.vk_api.VkApi)-> True:
         else:
             os.system('cls')
             print('False - No command')
-    
+
     return False
 
 
-
 if __name__ == '__main__':
+
     with open('PAW.txt', 'r') as FIL:
         login_VK, password_VK = FIL.read().split(' ')
         if login_VK == '*' or password_VK == '*':
