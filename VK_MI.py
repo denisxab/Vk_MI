@@ -3,6 +3,7 @@
 Скачивание музыки из ВК
 """
 # pylint: disable=C0103
+#167802516
 
 import os
 import re
@@ -10,9 +11,11 @@ import requests
 import vk_api
 from vk_api.audio import VkAudio
 from Check_class.Check_class import Check_class
+import Search_vk
+import concurrent.futures
 
 
-@Check_class(0)
+
 def save_audio_os(name: str, url: str):
     """
     Скачивание муызки по прямой ссылки
@@ -31,48 +34,9 @@ def save_audio_os(name: str, url: str):
 
 
 @Check_class(0)
-def search_aidio(Choice_fanc: str, vk_sessions: vk_api.vk_api.VkApi, name: str, count: int):
-    """
-    Поиск аудио записей из общего поиска вк
-    или из плей листа пользователя
-    """
-    #_________________________________________________#
-
-    vkaudio = VkAudio(vk_sessions)
-    if Choice_fanc == 'all':
-        search_111 = []
-        for lists_music in vkaudio.search(name, count):
-            search_111.append(
-                (lists_music['artist'],
-                 lists_music['title'],
-                 lists_music['url']))
-        return search_111
-
-    if Choice_fanc == 'id':
-        search_111 = []
-        if not isinstance(name, int):
-            try:
-                name = int(name)
-            except ValueError:
-                return False
-
-        for lists_music in enumerate(vkaudio.get_iter(owner_id=name)):
-            if lists_music[0] <= count:
-                search_111.append(
-                    (lists_music[1]['artist'],
-                     lists_music[1]['title'],
-                     lists_music[1]['url']))
-            else:
-                break
-        return search_111
-
-    return False
-
-
-@Check_class(0)
 def Entrance_VK(logins: str, passwords: str)-> True:
     """
-    Вход в ВК
+    Вход в ВКs
     """
 
     vk_sessions = vk_api.VkApi(logins, passwords)
@@ -88,28 +52,15 @@ def Entrance_VK(logins: str, passwords: str)-> True:
     return vk_sessions
 
 
-@Check_class(0)
-def clear_id(name: str):
-    """
-    Отчитска ID вк
-    """
-    #_______________________________#
+def Pred_dowload(item_dowload:tuple):
 
-    name = re.findall(re.compile("\\w+(?![https://vk.com/])"), name)[0]
-    list_name = list(name)
-    if list_name[0] == 'i' and list_name[1] == 'd':  # pylint: disable=R1705
-        list_name.pop(0)
-        list_name.pop(0)
-        return ''.join(list_name)
+    RES1 = save_audio_os(item_dowload[0],item_dowload[1])
 
-    else:
-        iad = re.findall(re.compile('[a-z]'), name)
-        if iad:
-            return False
-        if not iad:
-            return ''.join(name)
+    if RES1:
+        return f'{item_dowload[0]} - True'
 
-    return False
+    elif not RES1:
+        return f'{item_dowload[0]} - False - Install Before'
 
 
 @Check_class(0)
@@ -132,12 +83,19 @@ def Search(vk_sessions: vk_api.vk_api.VkApi, REG: str):
         elif REG == 'id':
             print('-------- ID Search List --------')
             Name = str(input('ID Audio : '))
+
+
             if Name == '<<<':
                 os.system('cls')
                 return False
-            Name = clear_id(Name)
 
-            if Name:
+            elif Name == 'my':
+                Name = Search_vk.save_id(0,False)
+
+            else:
+                Name = Search_vk.clear_id(Name)
+
+            if Name == True:
                 print(f'ID = {Name}')
                 Name = str(Name)
 
@@ -154,10 +112,10 @@ def Search(vk_sessions: vk_api.vk_api.VkApi, REG: str):
             continue
 
         if REG == 'all':
-            RES = search_aidio('all', vk_sessions, Name, Max)
+            RES = Search_vk.search_aidio('all', vk_sessions, Name, Max)
 
         elif REG == 'id':
-            RES = search_aidio('id', vk_sessions, Name, Max)
+            RES = Search_vk.search_aidio('id', vk_sessions, Name, Max)
 
         print('--------------------')
         if RES:
@@ -181,15 +139,21 @@ def Search(vk_sessions: vk_api.vk_api.VkApi, REG: str):
 
                     if Nomer1 < Max:
 
-                        for x in range(Nomer0, Nomer1+1):
+                        List_dowload = []
+                        for x in range(Nomer0, Nomer1):
+                            List_dowload.append((f'{RES[x][0]} {RES[x][1]}', RES[x][2]))
 
-                            RES1 = save_audio_os(f'{RES[x][0]} {RES[x][1]}', RES[x][2])
-                            if RES1:
-                                print(f'{x} - True')
-                            elif not RES1:
-                                print(f'{x} - False - Install Before')
+                        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+                            for x in executor.map(Pred_dowload,List_dowload):
+                                print(x)
+
+
+                        #list(map(Pred_dowload,List_dowload))
+                        
                         input('-End\n')
                         os.system('cls')
+
+     
 
                     elif Nomer1 >= Max:
                         os.system('cls')
@@ -260,14 +224,19 @@ def Audio_VK(vk_sessions: vk_api.vk_api.VkApi)-> True:
         else:
             os.system('cls')
             print('False - No command')
+    
     return False
+
 
 
 if __name__ == '__main__':
     with open('PAW.txt', 'r') as FIL:
         login_VK, password_VK = FIL.read().split(' ')
         if login_VK == '*' or password_VK == '*':
-            print('Введите Логин пороль в PAW.txt')
+            print('Введите логин и пороль в PAW.txt')
+            login_VK = input("Login: ")
+            password_VK = input("Passwords: ")
+            os.system('cls')
 
         vk_session = Entrance_VK(login_VK, password_VK)
         del login_VK, password_VK
@@ -278,3 +247,4 @@ if __name__ == '__main__':
     if not vk_session:
         print('False - No Internet')
         input()
+        quit()
